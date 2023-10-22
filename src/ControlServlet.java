@@ -121,21 +121,14 @@ public class ControlServlet extends HttpServlet {
 	           
 	    private void register(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 	    	String email = request.getParameter("email");
-	   	 	String firstName = request.getParameter("firstName");
-	   	 	String lastName = request.getParameter("lastName");
+	    	String confirm = request.getParameter("confirmation");
 	   	 	String password = request.getParameter("password");
-	   	 	String birthday = request.getParameter("birthday");
-	   	 	String adress_street_num = request.getParameter("adress_street_num"); 
-	   	 	String adress_street = request.getParameter("adress_street"); 
-	   	 	String adress_city = request.getParameter("adress_city"); 
-	   	 	String adress_state = request.getParameter("adress_state"); 
-	   	 	String adress_zip_code = request.getParameter("adress_zip_code"); 	   	 	
-	   	 	String confirm = request.getParameter("confirmation");
+	   	    String role = request.getParameter("role");
 	   	 	
 	   	 	if (password.equals(confirm)) {
 	   	 		if (!userDAO.checkEmail(email)) {
 		   	 		System.out.println("Registration Successful! Added to database");
-		            user users = new user(email,firstName, lastName, password, birthday, adress_street_num,  adress_street,  adress_city,  adress_state,  adress_zip_code, 1000,0);
+		            user users = new user(email, password, role);
 		   	 		userDAO.insert(users);
 		   	 		response.sendRedirect("login.jsp");
 	   	 		}
@@ -167,11 +160,4 @@ public class ControlServlet extends HttpServlet {
 	    
 }
 	        
-	        
-	    
-	        
-	        
-	        
-	    
-
-
+	    	   
