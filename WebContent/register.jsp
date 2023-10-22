@@ -15,25 +15,7 @@
 						<input type="text" name="email" size="45"  value="example@gmail.com" onfocus="this.value=''">
 					</td>
 				</tr>
-				<tr>
-					<th>First Name: </th>
-					<td align="center" colspan="3">
-						<input type="text" name="firstName" size="45" value="FirstName" onfocus="this.value=''">
-					</td>
-				</tr>
-				<tr>
-					<th>Last Name: </th>
-					<td align="center" colspan="3">
-						<input type="text" name="lastName" size="45" value="LastName" onfocus="this.value=''">
-					</td>
-				</tr>
-				<tr>
-					<th>Birthday: </th>
-					<td align="center" colspan="3">
-						<input type="text" name="birthday" size="45" value="YYYY-MM-DD" onfocus="this.value=''">
-					</td>
-	
-				</tr>
+			
 				<tr>
 					<th>Password: </th>
 					<td align="center" colspan="3"> 
@@ -47,6 +29,13 @@
 					</td>
 				
 				</tr>
+				
+				 <label for="role">Select a Role:</label>
+			        <select name="role" id="role">
+			            <option value="admin">Admin</option>
+			            <option value="client">Client</option>
+			        </select>
+			        
 				<tr>
 					<td align="center" colspan="5">
 						<input type="submit" value="Register"/>
