@@ -45,8 +45,7 @@ public class userDAO
             } catch (ClassNotFoundException e) {
                 throw new SQLException(e);
             }
-            connect = (Connection) DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/testdb?"
-            		+ "allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&user=root&password=tf321tf123");
+            connect = (Connection) DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/testdb?allowPublicKeyRetrieval=true&useSSL=false&user=john&password=john1234");
             System.out.println(connect);
         }
     }
@@ -251,7 +250,7 @@ public class userDAO
 			    	 	 	"('margarita@gmail.com', 'margarita1234', 'client'),"+
 			    		 	"('jo@gmail.com', 'jo1234', 'client'),"+
 			    		 	"('wallace@gmail.com', 'wallace1234', 'client'),"+
-			    		 	"('amelia@gmail.com', ,'amelia1234', 'client'),"+
+			    		 	"('amelia@gmail.com', 'amelia1234', 'client'),"+
 			    			"('sophie@gmail.com', 'sophie1234', 'client'),"+
 			    			"('angelo@gmail.com', 'angelo1234', 'client'),"+
 			    			"('rudy@gmail.com', 'rudy1234', 'client'),"+
@@ -266,6 +265,23 @@ public class userDAO
         	statement.execute(TUPLES[i]);
         disconnect();
     }
+    
+    public String getRole(String email) throws SQLException {
+    	String role = null;
+    	String sql = "SELECT * FROM User WHERE email = ?";
+    	connect_func();
+    	preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+        preparedStatement.setString(1, email);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+        
+        if (resultSet.next()) {
+            role = resultSet.getString("role");
+        }
+        
+        resultSet.close();
+        //statement.close();
+        
+    	return role;
+    }
 }
-    
-    

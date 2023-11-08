@@ -98,6 +98,7 @@ public class ControlServlet extends HttpServlet {
 	    protected void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException {
 	    	 String email = request.getParameter("email");
 	    	 String password = request.getParameter("password");
+	    	 String role = userDAO.getRole(email);
 	    	 
 	    	 if (email.equals("root") && password.equals("pass1234")) {
 				 System.out.println("Login Successful! Redirecting to root");
@@ -107,10 +108,17 @@ public class ControlServlet extends HttpServlet {
 	    	 }
 	    	 else if(userDAO.isValid(email, password)) 
 	    	 {
+			 	 if(role.equals("client")) {
+			 		 currentUser = email;
+					 System.out.println("Login Successful! Redirecting");
+					 request.getRequestDispatcher("activitypage.jsp").forward(request, response);
+			 	 }
+			 	 else if(role.equals("admin")) {
+			 		 currentUser = email;
+					 System.out.println("Login Successful! Redirecting");
+					 request.getRequestDispatcher("admin.jsp").forward(request, response);
+			 	 }
 			 	 
-			 	 currentUser = email;
-				 System.out.println("Login Successful! Redirecting");
-				 request.getRequestDispatcher("activitypage.jsp").forward(request, response);
 			 			 			 			 
 	    	 }
 	    	 else {
@@ -160,4 +168,11 @@ public class ControlServlet extends HttpServlet {
 	    
 }
 	        
-	    	   
+	        
+	    
+	        
+	        
+	        
+	    
+
+
