@@ -249,11 +249,13 @@ public class userDAO
 			    		 	"('don@gmail.com', 'don123', 'client'),"+
 			    	 	 	"('margarita@gmail.com', 'margarita1234', 'client'),"+
 			    		 	"('jo@gmail.com', 'jo1234', 'client'),"+
+			    		 	"('david@gmail.com', 'david1234', 'admin'),"+
 			    		 	"('wallace@gmail.com', 'wallace1234', 'client'),"+
 			    		 	"('amelia@gmail.com', 'amelia1234', 'client'),"+
 			    			"('sophie@gmail.com', 'sophie1234', 'client'),"+
 			    			"('angelo@gmail.com', 'angelo1234', 'client'),"+
 			    			"('rudy@gmail.com', 'rudy1234', 'client'),"+
+			    			"('tahmid@gmail.com', 'tahmid1234', 'client'),"+
 			    			"('jeannette@gmail.com', 'jeannette1234', 'client'),"+
 			    			"('root', 'pass1234', 'admin');")
 			    			};
