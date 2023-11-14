@@ -24,6 +24,17 @@ To view any single page, right click on the the corresponding .jsp file and clic
 - **Tahmid:**
 	- Coding for login page and registration page
 	- Assisted in coding for root page
+
+### Part 2
+**Total Combined Hours of Work- ~10-12 hours**
+- **Mahin:**
+ 	- Display all quotes on admin page
+ 	- Display quote on logged in users page
+ 	- Allow quotes to be edited on both pages
+- **Tahmid:**
+	- Initialized new tables and connect to registration
+	- Display the tables on Rootview
+    - Github Documentation
 ## Contact
 - Mahin Haque (hd8796) - hd8796@wayne.edu
 - Tahmid Faiz (hd2428) - ftahmid2546@wayne.edu
