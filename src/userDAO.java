@@ -259,12 +259,42 @@ public class userDAO
 			    			"('jeannette@gmail.com', 'jeannette1234', 'client'),"+
 			    			"('root', 'pass1234', 'admin');")
 			    			};
-        
+        String[] QUOTE = {"use testdb; ",
+		        		  "drop table if exists Quote; ",
+		        		  ("CREATE TABLE if not exists Quote( " +
+						   "quote_id INT PRIMARY KEY AUTO_INCREMENT, " + 
+						   "quote_date DATE DEFAULT (CURRENT_DATE), " +
+						   "note VARCHAR(255), " +
+						   "treesize INT DEFAULT 0, " +
+						   "treeheight INT DEFAULT 0, " +
+						   "status VARCHAR(10) DEFAULT 'N/A', " +
+						   "user_email VARCHAR(50), " +
+						   "FOREIGN KEY (user_email) REFERENCES user(email) "+"); ")
+        					};
+        String[] QUOTE_TUPLES = {
+        		("insert into Quote(user_email, note)"+
+        				"values ('susie@gmail.com', 'Enter Message'),"+
+		    		 	"('don@gmail.com', 'Enter Message'),"+
+		    	 	 	"('margarita@gmail.com', 'Enter Message'),"+
+		    		 	"('jo@gmail.com', 'Enter Message'),"+
+		    		 	"('wallace@gmail.com', 'Enter Message'),"+
+		    		 	"('amelia@gmail.com', 'Enter Message'),"+
+		    			"('sophie@gmail.com', 'Enter Message'),"+
+		    			"('angelo@gmail.com', 'Enter Message'),"+
+		    			"('rudy@gmail.com', 'Enter Message'),"+
+		    			"('tahmid@gmail.com', 'Enter Message'),"+
+		    			"('jeannette@gmail.com', 'Enter Message');")
+
+			    	};
         //for loop to put these in database
         for (int i = 0; i < INITIAL.length; i++)
         	statement.execute(INITIAL[i]);
         for (int i = 0; i < TUPLES.length; i++)	
         	statement.execute(TUPLES[i]);
+        for (int i = 0; i < QUOTE.length; i++)	
+        	statement.execute(QUOTE[i]);
+        for (int i = 0; i < QUOTE_TUPLES.length; i++)	
+        	statement.execute(QUOTE_TUPLES[i]);
         disconnect();
     }
     
@@ -286,4 +316,141 @@ public class userDAO
         
     	return role;
     }
+    
+    public List<quote> listAllQuotes() throws SQLException {
+        // Possibly reduntant function, will fix later
+    	List<quote> listQuote = new ArrayList<quote>();        
+        String sql = "SELECT * FROM Quote";    
+        
+        connect_func();      
+        statement = (Statement) connect.createStatement();
+        ResultSet resultSet = statement.executeQuery(sql);
+         
+        while (resultSet.next()) {
+            String quote_id = resultSet.getString("quote_id");
+            String quote_date = resultSet.getString("quote_date"); 
+            String note = resultSet.getString("note");
+            String treesize = resultSet.getString("treesize");
+            String treeheight = resultSet.getString("treeheight");
+            String status = resultSet.getString("status");
+            String user_email = resultSet.getString("user_email");
+            
+            quote quotes = new quote(note, user_email, treesize, treeheight, status, quote_id, quote_date);
+            listQuote.add(quotes);
+        }        
+        resultSet.close();
+        disconnect();        
+        return listQuote;
+    }
+    
+    public void insertQuote(user users) throws SQLException {
+    	// Insert a new quote upon registration
+    	connect_func("root","pass1234");         
+		String sql = "insert into Quote(user_email, note) values (?, ?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, users.getEmail());
+			preparedStatement.setString(2, "Enter Message");
+			
+			
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public List<quote> currentUserQuote(String email) throws SQLException {
+        // Function used to show all the quotes of the logged in user
+    	List<quote> listQuote = new ArrayList<quote>();        
+        String sql = "SELECT * FROM Quote WHERE user_email = ?";
+        
+        connect_func();
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.setString(1, email);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            String quote_id = resultSet.getString("quote_id");
+            String quote_date = resultSet.getString("quote_date"); 
+            String note = resultSet.getString("note");
+            String treesize = resultSet.getString("treesize");
+            String treeheight = resultSet.getString("treeheight");
+            String status = resultSet.getString("status");
+            String user_email = resultSet.getString("user_email");
+            
+            quote quotes = new quote(note, user_email, treesize, treeheight, status, quote_id, quote_date);
+            listQuote.add(quotes);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listQuote;
+    }
+    
+    public void updateQuote(quote quotes) throws SQLException {
+    	// Function used to modify the logged in users quote
+    	connect_func();         
+    	String sql = "UPDATE quote SET note=?, quote_date=?, treesize=?, treeheight=? WHERE user_email=?";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, quotes.getNote());
+			preparedStatement.setString(2, quotes.getQuoteDate());
+			preparedStatement.setString(3, quotes.getTreeSize());
+			preparedStatement.setString(4, quotes.getTreeHeight());
+			preparedStatement.setString(5, quotes.getUserEmail());
+			
+			
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public List<quote> allQuotes() throws SQLException {
+    	// List all quotes in the database to be viewed when logged in as admin
+    	List<quote> listQuote = new ArrayList<>();
+
+        
+        String sql = "SELECT * FROM Quote";
+
+        connect_func();
+        preparedStatement = connect.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            String quote_id = resultSet.getString("quote_id");
+            String quote_date = resultSet.getString("quote_date"); 
+            String note = resultSet.getString("note");
+            String treesize = resultSet.getString("treesize");
+            String treeheight = resultSet.getString("treeheight");
+            String status = resultSet.getString("status");
+            String user_email = resultSet.getString("user_email");
+            
+            quote quotes = new quote(note, user_email, treesize, treeheight, status, quote_id, quote_date);
+            listQuote.add(quotes);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listQuote;
+    }
+    
+    public void updateQuoteFromAdmin(quote quotes) throws SQLException {
+    	// Function for modifying a user quote when logged in as an admin
+    	connect_func();         
+    	String sql = "UPDATE quote SET note=?, quote_date=?, treesize=?, treeheight=?, quote_id=?, status=? WHERE user_email=?";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, quotes.getNote());
+			preparedStatement.setString(2, quotes.getQuoteDate());
+			preparedStatement.setString(3, quotes.getTreeSize());
+			preparedStatement.setString(4, quotes.getTreeHeight());
+			preparedStatement.setString(5, quotes.getQuoteid());
+			preparedStatement.setString(6, quotes.getStatus());
+			preparedStatement.setString(7, quotes.getUserEmail());
+			
+			
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
 }

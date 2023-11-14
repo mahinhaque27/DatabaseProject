@@ -68,6 +68,12 @@ public class ControlServlet extends HttpServlet {
                  System.out.println("The action is: list");
                  listUser(request, response);           	
                  break;
+        	 case "/updateQuote":
+        		updateQuote(request, response);
+        	 	break;
+        	 case "/updateQuoteFromAdmin":
+        		 updateQuoteFromAdmin(request, response);
+        		 break;
 	    	}
 	    }
 	    catch(Exception ex) {
@@ -91,7 +97,9 @@ public class ControlServlet extends HttpServlet {
 	    private void rootPage(HttpServletRequest request, HttpServletResponse response, String view) throws ServletException, IOException, SQLException{
 	    	System.out.println("root view");
 			request.setAttribute("listUser", userDAO.listAllUsers());
+			request.setAttribute("listQuote", userDAO.listAllQuotes());
 	    	request.getRequestDispatcher("rootView.jsp").forward(request, response);
+	    	
 	    }
 	    
 	    
@@ -110,11 +118,13 @@ public class ControlServlet extends HttpServlet {
 	    	 {
 			 	 if(role.equals("client")) {
 			 		 currentUser = email;
+			 		 request.setAttribute("currentQuote", userDAO.currentUserQuote(email));
 					 System.out.println("Login Successful! Redirecting");
 					 request.getRequestDispatcher("activitypage.jsp").forward(request, response);
 			 	 }
 			 	 else if(role.equals("admin")) {
 			 		 currentUser = email;
+			 		 request.setAttribute("currentQuote", userDAO.allQuotes());
 					 System.out.println("Login Successful! Redirecting");
 					 request.getRequestDispatcher("admin.jsp").forward(request, response);
 			 	 }
@@ -137,7 +147,15 @@ public class ControlServlet extends HttpServlet {
 	   	 		if (!userDAO.checkEmail(email)) {
 		   	 		System.out.println("Registration Successful! Added to database");
 		            user users = new user(email, password, role);
-		   	 		userDAO.insert(users);
+		            // If client register and a quote, if admin only register
+		            if(role.equals("client")) {
+		            	userDAO.insert(users);
+			   	 		userDAO.insertQuote(users);
+		            }
+		            else {
+		            	userDAO.insert(users);
+		            }
+		   	 		
 		   	 		response.sendRedirect("login.jsp");
 	   	 		}
 		   	 	else {
@@ -155,9 +173,48 @@ public class ControlServlet extends HttpServlet {
 	    private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 	    	currentUser = "";
         		response.sendRedirect("login.jsp");
-        	}
+        }
 	
+	    private void updateQuote(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, SQLException {
+	    		String user_email = currentUser;
+	    		String quote_date = request.getParameter("quoteDate");
+	    		String treesize = request.getParameter("treeSize");
+	    		String treeHeight = request.getParameter("treeHeight");
+	    		String note = request.getParameter("note");
+	    		
+	    		quote quotes = new quote(note, user_email, treesize, treeHeight, quote_date);
+	    		
+	    		try {
+					userDAO.updateQuote(quotes);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	    		request.setAttribute("currentQuote", userDAO.currentUserQuote(user_email));
+	    		request.getRequestDispatcher("activitypage.jsp").forward(request, response);
+        }
 	    
+	    private void updateQuoteFromAdmin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, SQLException {
+    		String user_email = request.getParameter("userEmail");
+    		String quote_date = request.getParameter("quoteDate");
+    		String treesize = request.getParameter("treeSize");
+    		String treeHeight = request.getParameter("treeHeight");
+    		String note = request.getParameter("note");
+    		
+    		String quote_id = request.getParameter("quoteId");
+    		String status = request.getParameter("status");
+    		
+    		quote quotes = new quote(note, user_email, treesize, treeHeight, status, quote_id, quote_date);
+    		
+    		try {
+				userDAO.updateQuoteFromAdmin(quotes);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		request.setAttribute("currentQuote", userDAO.allQuotes());
+    		request.getRequestDispatcher("admin.jsp").forward(request, response);
+    }
 
 	     
         
