@@ -74,6 +74,12 @@ public class ControlServlet extends HttpServlet {
         	 case "/updateQuoteFromAdmin":
         		 updateQuoteFromAdmin(request, response);
         		 break;
+        	 case "/addQuote":
+        		 addQuote(request,response);
+        		 break;
+        	 case "/updateBill":
+        		 payBill(request,response);
+        		 break;
 	    	}
 	    }
 	    catch(Exception ex) {
@@ -98,6 +104,15 @@ public class ControlServlet extends HttpServlet {
 	    	System.out.println("root view");
 			request.setAttribute("listUser", userDAO.listAllUsers());
 			request.setAttribute("listQuote", userDAO.listAllQuotes());
+			request.setAttribute("bigClients", userDAO.bigClients());
+			request.setAttribute("easyClients", userDAO.easyClients());
+			request.setAttribute("oneTreeClients", userDAO.oneTree());
+			request.setAttribute("prosClients", userDAO.prospectiveClient());
+			request.setAttribute("highTreeClients", userDAO.highestTreeClient());
+			request.setAttribute("overdueClients", userDAO.overdueBill());
+			request.setAttribute("badClients", userDAO.overdueBill());
+			request.setAttribute("goodClients", userDAO.goodClients());
+			request.setAttribute("allStats", userDAO.allStats());
 	    	request.getRequestDispatcher("rootView.jsp").forward(request, response);
 	    	
 	    }
@@ -119,6 +134,7 @@ public class ControlServlet extends HttpServlet {
 			 	 if(role.equals("client")) {
 			 		 currentUser = email;
 			 		 request.setAttribute("currentQuote", userDAO.currentUserQuote(email));
+			 		 request.setAttribute("currentBill", userDAO.statInfo(email));
 					 System.out.println("Login Successful! Redirecting");
 					 request.getRequestDispatcher("activitypage.jsp").forward(request, response);
 			 	 }
@@ -151,6 +167,7 @@ public class ControlServlet extends HttpServlet {
 		            if(role.equals("client")) {
 		            	userDAO.insert(users);
 			   	 		userDAO.insertQuote(users);
+			   	 		userDAO.insertStat(email);
 		            }
 		            else {
 		            	userDAO.insert(users);
@@ -181,16 +198,19 @@ public class ControlServlet extends HttpServlet {
 	    		String treesize = request.getParameter("treeSize");
 	    		String treeHeight = request.getParameter("treeHeight");
 	    		String note = request.getParameter("note");
+	    		String quote_id = request.getParameter("quoteid");
 	    		
-	    		quote quotes = new quote(note, user_email, treesize, treeHeight, quote_date);
+	    		quote quotes = new quote(quote_id, note, user_email, treesize, treeHeight, quote_date);
 	    		
 	    		try {
 					userDAO.updateQuote(quotes);
+					userDAO.incrementUpdateQuoteCount(user_email);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	    		request.setAttribute("currentQuote", userDAO.currentUserQuote(user_email));
+	    		request.setAttribute("currentBill", userDAO.statInfo(user_email));
 	    		request.getRequestDispatcher("activitypage.jsp").forward(request, response);
         }
 	    
@@ -214,7 +234,40 @@ public class ControlServlet extends HttpServlet {
 			}
     		request.setAttribute("currentQuote", userDAO.allQuotes());
     		request.getRequestDispatcher("admin.jsp").forward(request, response);
-    }
+	    }
+	    
+	    private void addQuote(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, SQLException {
+    		String user_email = currentUser;
+    		
+    		
+    		user users = new user(user_email);
+    		
+    		try {
+				userDAO.insertQuote(users);
+				userDAO.incrementQuoteCount(user_email);
+				userDAO.incrementBillAmount(user_email);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		request.setAttribute("currentQuote", userDAO.currentUserQuote(user_email));
+    		request.setAttribute("currentBill", userDAO.statInfo(user_email));
+    		request.getRequestDispatcher("activitypage.jsp").forward(request, response);
+	    }
+	    
+	    private void payBill(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, SQLException {
+    		String user_email = currentUser;
+    		
+    		try {
+				userDAO.payBill(user_email);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		request.setAttribute("currentBill", userDAO.statInfo(user_email));
+    		request.setAttribute("currentQuote", userDAO.currentUserQuote(user_email));
+    		request.getRequestDispatcher("activitypage.jsp").forward(request, response);
+	    }
 
 	     
         

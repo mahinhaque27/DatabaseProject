@@ -246,7 +246,7 @@ public class userDAO
         String[] TUPLES = {
         		("insert into User(email, password, role)"+
         			"values ('susie@gmail.com', 'susie1234', 'client'),"+
-			    		 	"('don@gmail.com', 'don123', 'client'),"+
+			    		 	"('don@gmail.com', 'don1234', 'client'),"+
 			    	 	 	"('margarita@gmail.com', 'margarita1234', 'client'),"+
 			    		 	"('jo@gmail.com', 'jo1234', 'client'),"+
 			    		 	"('david@gmail.com', 'david1234', 'admin'),"+
@@ -286,6 +286,39 @@ public class userDAO
 		    			"('jeannette@gmail.com', 'Enter Message');")
 
 			    	};
+        
+        String[] STAT = {"use testdb; ",
+      		  "drop table if exists Stat; ",
+      		  ("CREATE TABLE if not exists Stat( " +
+				   "stat_id INT PRIMARY KEY AUTO_INCREMENT, " + 
+				   "user_email VARCHAR(50), " +
+				   "quoteCount INT DEFAULT 1, " +
+				   "updateQuoteCount INT DEFAULT 0, " +
+				   "billAmount INT DEFAULT 100, " +
+				   "billStatus VARCHAR(10) DEFAULT 'N/A', " +
+				   "billDate DATE DEFAULT (CURRENT_DATE), " +
+				   "paidDate DATE DEFAULT '2023-01-01', " +
+				   "paidAmount INT DEFAULT 0, " +
+				   "FOREIGN KEY (user_email) REFERENCES user(email) "+"); ")
+					};
+        //updateQuoteCount stores the amount of times the user presses update
+        String[] STAT_TUPLES = {
+        		("insert into Stat(user_email)"+
+        				"values ('susie@gmail.com'),"+
+		    		 	"('don@gmail.com'),"+
+		    	 	 	"('margarita@gmail.com'),"+
+		    		 	"('jo@gmail.com'),"+
+		    		 	"('wallace@gmail.com'),"+
+		    		 	"('amelia@gmail.com'),"+
+		    			"('sophie@gmail.com'),"+
+		    			"('angelo@gmail.com'),"+
+		    			"('rudy@gmail.com'),"+
+		    			"('tahmid@gmail.com'),"+
+		    			"('jeannette@gmail.com');")
+
+			    	};
+        
+        
         //for loop to put these in database
         for (int i = 0; i < INITIAL.length; i++)
         	statement.execute(INITIAL[i]);
@@ -295,6 +328,10 @@ public class userDAO
         	statement.execute(QUOTE[i]);
         for (int i = 0; i < QUOTE_TUPLES.length; i++)	
         	statement.execute(QUOTE_TUPLES[i]);
+        for (int i = 0; i < STAT.length; i++)	
+        	statement.execute(STAT[i]);
+        for (int i = 0; i < STAT_TUPLES.length; i++)	
+        	statement.execute(STAT_TUPLES[i]);
         disconnect();
     }
     
@@ -345,7 +382,7 @@ public class userDAO
     
     public void insertQuote(user users) throws SQLException {
     	// Insert a new quote upon registration
-    	connect_func("root","pass1234");         
+    	connect_func();         
 		String sql = "insert into Quote(user_email, note) values (?, ?)";
 		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
 			preparedStatement.setString(1, users.getEmail());
@@ -390,13 +427,14 @@ public class userDAO
     public void updateQuote(quote quotes) throws SQLException {
     	// Function used to modify the logged in users quote
     	connect_func();         
-    	String sql = "UPDATE quote SET note=?, quote_date=?, treesize=?, treeheight=? WHERE user_email=?";
+    	String sql = "UPDATE quote SET note=?, quote_date=?, treesize=?, treeheight=? WHERE quote_id=? AND user_email=?";
 		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
 			preparedStatement.setString(1, quotes.getNote());
 			preparedStatement.setString(2, quotes.getQuoteDate());
 			preparedStatement.setString(3, quotes.getTreeSize());
 			preparedStatement.setString(4, quotes.getTreeHeight());
-			preparedStatement.setString(5, quotes.getUserEmail());
+			preparedStatement.setString(5, quotes.getQuoteid());
+			preparedStatement.setString(6, quotes.getUserEmail());
 			
 			
 
@@ -437,7 +475,7 @@ public class userDAO
     public void updateQuoteFromAdmin(quote quotes) throws SQLException {
     	// Function for modifying a user quote when logged in as an admin
     	connect_func();         
-    	String sql = "UPDATE quote SET note=?, quote_date=?, treesize=?, treeheight=?, quote_id=?, status=? WHERE user_email=?";
+    	String sql = "UPDATE quote SET note=?, quote_date=?, treesize=?, treeheight=?, quote_id=?, status=? WHERE quote_id=? AND user_email=?";
 		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
 			preparedStatement.setString(1, quotes.getNote());
 			preparedStatement.setString(2, quotes.getQuoteDate());
@@ -445,12 +483,416 @@ public class userDAO
 			preparedStatement.setString(4, quotes.getTreeHeight());
 			preparedStatement.setString(5, quotes.getQuoteid());
 			preparedStatement.setString(6, quotes.getStatus());
-			preparedStatement.setString(7, quotes.getUserEmail());
+			preparedStatement.setString(7, quotes.getQuoteid());
+			preparedStatement.setString(8, quotes.getUserEmail());
 			
 			
 
 		preparedStatement.executeUpdate();
         preparedStatement.close();
     }
+    
+    // Part 3 Functions
+    public void insertStat(String email) throws SQLException {
+    	// Insert a new stat record upon registration
+    	connect_func();         
+		String sql = "insert into Stat(user_email) values (?)";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, email);
+			
+			
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void incrementQuoteCount(String email) throws SQLException {
+    	// Insert quoteCount value after someone adds a new quote
+    	connect_func();         
+    	String sql = "UPDATE Stat SET quoteCount = quoteCount + 1 WHERE user_email = ?";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, email);
+			
+			
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void incrementUpdateQuoteCount(String email) throws SQLException {
+    	// increment updateQuoteCount value in table
+    	connect_func();         
+    	String sql = "UPDATE Stat SET updateQuoteCount = updateQuoteCount + 1 WHERE user_email = ?";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, email);
+			
+			
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public void incrementBillAmount(String email) throws SQLException {
+    	// Insert billAmount in table by 100
+    	connect_func();         
+    	String sql = "UPDATE Stat SET billAmount = billAmount + 100 WHERE user_email = ?";
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+			preparedStatement.setString(1, email);
+			
+			
+
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public List<stat> statInfo(String email) throws SQLException {
+        // Function used to show the bill of the logged in user
+    	List<stat> listStat = new ArrayList<stat>();        
+        String sql = "SELECT * FROM Stat WHERE user_email = ?";
+        
+        connect_func();
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.setString(1, email);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            String stat_id = resultSet.getString("stat_id");
+            String user_email = resultSet.getString("user_email"); 
+            String quoteCount = resultSet.getString("quoteCount");
+            String updateQuoteCount = resultSet.getString("updateQuoteCount");
+            String billAmount = resultSet.getString("billAmount");
+            String billStatus = resultSet.getString("billStatus");
+            String billDate = resultSet.getString("billDate");
+            String paidDate = resultSet.getString("paidDate");
+            String paidAmount = resultSet.getString("paidAmount");
+            
+            stat stats = new stat(stat_id, user_email, quoteCount, updateQuoteCount, billAmount, billStatus, billDate, paidDate, paidAmount);
+            listStat.add(stats);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listStat;
+    }
+    
+    public void payBill(String email) throws SQLException {
+    	// Pay off the bill based off the email
+    	connect_func();       
+    	
+    	String sql = "UPDATE Stat SET paidAmount = billAmount WHERE user_email = ?";
+    	String sql2 = "UPDATE Stat SET billAmount = 0 WHERE user_email = ?";
+    	String sql3 = "UPDATE Stat SET billStatus = 'Paid' WHERE user_email = ?";
+    	String sql4 = "UPDATE Stat SET paidDate = CURRENT_DATE() WHERE user_email = ?";
+    	
+    	
+		preparedStatement = (PreparedStatement) connect.prepareStatement(sql);
+		preparedStatement.setString(1, email);
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+        
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql2);
+		preparedStatement.setString(1, email);
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+        
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql3);
+		preparedStatement.setString(1, email);
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+        
+        preparedStatement = (PreparedStatement) connect.prepareStatement(sql4);
+		preparedStatement.setString(1, email);
+		preparedStatement.executeUpdate();
+        preparedStatement.close();
+    }
+    
+    public List<stat> bigClients() throws SQLException {
+        // Function used to show the clients that had the most trees cut
+    	List<stat> listStat = new ArrayList<stat>();        
+    	// Get the maximum value of quoteCount
+        String maxQuoteCountSql = "SELECT MAX(quoteCount) AS maxQuoteCount FROM Stat";
+
+        connect_func();
+        preparedStatement = connect.prepareStatement(maxQuoteCountSql);
+        ResultSet maxQuoteCountResult = preparedStatement.executeQuery();
+        
+        int maxQuoteCount = 0;
+        if (maxQuoteCountResult.next()) {
+            maxQuoteCount = maxQuoteCountResult.getInt("maxQuoteCount");
+        }
+
+        maxQuoteCountResult.close();
+
+        // Select rows where quoteCount matches the maximum value
+        String sql = "SELECT * FROM Stat WHERE quoteCount = ?";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.setInt(1, maxQuoteCount);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+         
+            String stat_id = resultSet.getString("stat_id");
+            String user_email = resultSet.getString("user_email");
+            String quoteCount = resultSet.getString("quoteCount");
+            String updateQuoteCount = resultSet.getString("updateQuoteCount");
+            String billAmount = resultSet.getString("billAmount");
+            String billStatus = resultSet.getString("billStatus");
+            String billDate = resultSet.getString("billDate");
+            String paidDate = resultSet.getString("paidDate");
+            String paidAmount = resultSet.getString("paidAmount");
+
+            stat stats = new stat(stat_id, user_email, quoteCount, updateQuoteCount, billAmount, billStatus, billDate, paidDate, paidAmount);
+            listStat.add(stats);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listStat;
+    }
+    
+    public List<stat> easyClients() throws SQLException {
+       // Function used to show the clients that accepted the first quote without negotiation
+    		List<stat> listStat = new ArrayList<stat>();        
+    	 	String sql = "SELECT * FROM Stat WHERE updateQuoteCount = ?";
+    	    
+    	    connect_func();
+    	    preparedStatement = connect.prepareStatement(sql);
+    	    preparedStatement.setString(1, "1"); 
+
+    	    ResultSet resultSet = preparedStatement.executeQuery();
+
+    	    while (resultSet.next()) {
+    	        // Retrieve values from the result set and create Stat objects
+    	        String stat_id = resultSet.getString("stat_id");
+    	        String user_email = resultSet.getString("user_email");
+    	        String quoteCount = resultSet.getString("quoteCount");
+    	        String updateQuoteCount = resultSet.getString("updateQuoteCount");
+    	        String billAmount = resultSet.getString("billAmount");
+    	        String billStatus = resultSet.getString("billStatus");
+    	        String billDate = resultSet.getString("billDate");
+    	        String paidDate = resultSet.getString("paidDate");
+    	        String paidAmount = resultSet.getString("paidAmount");
+
+    	        stat stats = new stat(stat_id, user_email, quoteCount, updateQuoteCount, billAmount, billStatus, billDate, paidDate, paidAmount);
+    	        listStat.add(stats);
+    	    }
+
+    	    resultSet.close();
+    	    disconnect();
+
+    	    return listStat;
+    	}
+    
+    public List<stat> oneTree() throws SQLException {
+        // Function used to show the clients that accepted the first quote without negotiation
+     		List<stat> listStat = new ArrayList<stat>();        
+     	 	String sql = "SELECT * FROM Stat WHERE quoteCount = ?";
+     	    
+     	    connect_func();
+     	    preparedStatement = connect.prepareStatement(sql);
+     	    preparedStatement.setString(1, "1"); 
+
+     	    ResultSet resultSet = preparedStatement.executeQuery();
+
+     	    while (resultSet.next()) {
+     	        // Retrieve values from the result set and create Stat objects
+     	        String stat_id = resultSet.getString("stat_id");
+     	        String user_email = resultSet.getString("user_email");
+     	        String quoteCount = resultSet.getString("quoteCount");
+     	        String updateQuoteCount = resultSet.getString("updateQuoteCount");
+     	        String billAmount = resultSet.getString("billAmount");
+     	        String billStatus = resultSet.getString("billStatus");
+     	        String billDate = resultSet.getString("billDate");
+     	        String paidDate = resultSet.getString("paidDate");
+     	        String paidAmount = resultSet.getString("paidAmount");
+
+     	        stat stats = new stat(stat_id, user_email, quoteCount, updateQuoteCount, billAmount, billStatus, billDate, paidDate, paidAmount);
+     	        listStat.add(stats);
+     	    }
+
+     	    resultSet.close();
+     	    disconnect();
+
+     	    return listStat;
+     	}
+    
+    public List<quote> prospectiveClient() throws SQLException {
+        // Function used to show the clients where their quotes haven't been accepted yet
+     		List<quote> listQuote = new ArrayList<quote>();        
+     	 	String sql = "SELECT * FROM Quote WHERE status = ?";
+     	    
+     	    connect_func();
+     	    preparedStatement = connect.prepareStatement(sql);
+     	    preparedStatement.setString(1, "N/A"); 
+
+     	    ResultSet resultSet = preparedStatement.executeQuery();
+
+     	    while (resultSet.next()) {
+     	        // Retrieve values from the result set and create Quote objects
+     	    	String quote_id = resultSet.getString("quote_id");
+                String quote_date = resultSet.getString("quote_date"); 
+                String note = resultSet.getString("note");
+                String treesize = resultSet.getString("treesize");
+                String treeheight = resultSet.getString("treeheight");
+                String status = resultSet.getString("status");
+                String user_email = resultSet.getString("user_email");
+                
+                quote quotes = new quote(note, user_email, treesize, treeheight, status, quote_id, quote_date);
+                listQuote.add(quotes);
+     	    }
+
+     	    resultSet.close();
+     	    disconnect();
+
+     	    return listQuote;
+     	}
+    
+    public List<quote> highestTreeClient() throws SQLException {
+    	// Function used to show the clients with the tallest tree
+    	List<quote> listQuote = new ArrayList<quote>();        
+    	// Get the maximum value of quoteCount
+        String maxTreeHeightSql = "SELECT MAX(treeheight) AS maxTreeHeightCount FROM Quote";
+
+        connect_func();
+        preparedStatement = connect.prepareStatement(maxTreeHeightSql);
+        ResultSet maxTreeHeightResult = preparedStatement.executeQuery();
+        
+        int maxTreeHeightCount = 0;
+        if (maxTreeHeightResult.next()) {
+            maxTreeHeightCount = maxTreeHeightResult.getInt("maxTreeHeightCount");
+        }
+
+        maxTreeHeightResult.close();
+
+        // Select rows where treeheight matches the maximum value
+        String sql = "SELECT * FROM Quote WHERE treeheight = ?";
+        preparedStatement = connect.prepareStatement(sql);
+        preparedStatement.setInt(1, maxTreeHeightCount);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+         
+        	// Retrieve values from the result set and create Quote objects
+ 	    	String quote_id = resultSet.getString("quote_id");
+            String quote_date = resultSet.getString("quote_date"); 
+            String note = resultSet.getString("note");
+            String treesize = resultSet.getString("treesize");
+            String treeheight = resultSet.getString("treeheight");
+            String status = resultSet.getString("status");
+            String user_email = resultSet.getString("user_email");
+            
+            quote quotes = new quote(note, user_email, treesize, treeheight, status, quote_id, quote_date);
+            listQuote.add(quotes);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listQuote;
+     	}
+    
+    public List<stat> overdueBill() throws SQLException {
+        List<stat> listStat = new ArrayList<>();
+
+        String sql = "SELECT * FROM Stat WHERE DATEDIFF(paidDate, billDate) >= 7";
+        
+        connect_func();
+        preparedStatement = connect.prepareStatement(sql);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            // Retrieve values from the result set and create Stat objects
+            String stat_id = resultSet.getString("stat_id");
+            String user_email = resultSet.getString("user_email");
+            String quoteCount = resultSet.getString("quoteCount");
+            String updateQuoteCount = resultSet.getString("updateQuoteCount");
+            String billAmount = resultSet.getString("billAmount");
+            String billStatus = resultSet.getString("billStatus");
+            String billDate = resultSet.getString("billDate");
+            String paidDate = resultSet.getString("paidDate");
+            String paidAmount = resultSet.getString("paidAmount");
+
+            stat stats = new stat(stat_id, user_email, quoteCount, updateQuoteCount, billAmount, billStatus, billDate, paidDate, paidAmount);
+            listStat.add(stats);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listStat;
+    }
+    
+    public List<stat> goodClients() throws SQLException {
+        List<stat> listStat = new ArrayList<>();
+
+        String sql = "SELECT * FROM Stat WHERE DATEDIFF(paidDate, billDate) = 1";
+        
+        connect_func();
+        preparedStatement = connect.prepareStatement(sql);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            // Retrieve values from the result set and create Stat objects
+            String stat_id = resultSet.getString("stat_id");
+            String user_email = resultSet.getString("user_email");
+            String quoteCount = resultSet.getString("quoteCount");
+            String updateQuoteCount = resultSet.getString("updateQuoteCount");
+            String billAmount = resultSet.getString("billAmount");
+            String billStatus = resultSet.getString("billStatus");
+            String billDate = resultSet.getString("billDate");
+            String paidDate = resultSet.getString("paidDate");
+            String paidAmount = resultSet.getString("paidAmount");
+
+            stat stats = new stat(stat_id, user_email, quoteCount, updateQuoteCount, billAmount, billStatus, billDate, paidDate, paidAmount);
+            listStat.add(stats);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listStat;
+    }
+    
+    public List<stat> allStats() throws SQLException {
+        List<stat> listStat = new ArrayList<>();
+
+        String sql = "SELECT * FROM Stat";
+        
+        connect_func();
+        preparedStatement = connect.prepareStatement(sql);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            // Retrieve values from the result set and create Stat objects
+            String stat_id = resultSet.getString("stat_id");
+            String user_email = resultSet.getString("user_email");
+            String quoteCount = resultSet.getString("quoteCount");
+            String updateQuoteCount = resultSet.getString("updateQuoteCount");
+            String billAmount = resultSet.getString("billAmount");
+            String billStatus = resultSet.getString("billStatus");
+            String billDate = resultSet.getString("billDate");
+            String paidDate = resultSet.getString("paidDate");
+            String paidAmount = resultSet.getString("paidAmount");
+
+            stat stats = new stat(stat_id, user_email, quoteCount, updateQuoteCount, billAmount, billStatus, billDate, paidDate, paidAmount);
+            listStat.add(stats);
+        }
+
+        resultSet.close();
+        disconnect();
+
+        return listStat;
+    }
+    
+    
+    
     
 }

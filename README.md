@@ -35,6 +35,16 @@ To view any single page, right click on the the corresponding .jsp file and clic
 	- Initialized new tables and connect to registration
 	- Display the tables on Rootview
     - Github Documentation
+### Part 3
+**Total Combined Hours of Work- ~16-18 hours**
+- **Mahin:**
+ 	- Initialize statistics table and insert users into table
+ 	- Display users who are considered bad clients, overdue clients, highest tree,
+     good clients, and overall statistics on root page
+- **Tahmid:**
+	- Display big clients, easy clients, one tree, and prospective on root page
+    - Github Documentation
+
 ## Contact
 - Mahin Haque (hd8796) - hd8796@wayne.edu
 - Tahmid Faiz (hd2428) - ftahmid2546@wayne.edu
