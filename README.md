@@ -1,4 +1,7 @@
 # CSC4710-Project
+
+## Description
+This project implements a tree-cutting company's client management system where the user can create an account and create an order for the admins (company staff) to see the quotes. The company staff would then be able to modify the quotes and send messages to the client as needed. This project was implemented using Java and MySQL.
  
 ## Pre-Requisites
 - Eclipse IDE
